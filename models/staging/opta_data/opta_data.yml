@@ -1,0 +1,52 @@
+version: 2
+
+models:
+  - name: stg_descriptions
+    description: Mappings from action types to descriptions
+    columns:
+      - name: qualifier
+        tests:
+          - unique
+          - not_null
+  - name: stg_events
+    description: Mappings from actions to descriptors
+    columns:
+      - name: action_number
+        tests:
+          - unique
+          - not_null
+  - name: stg_fixture_data
+    description: Fixture data including teams and scores
+    columns:
+      - name: fxid
+        tests:
+          - unique
+          - not_null
+  - name: stg_match_data
+    description: All opta superscout match data
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+  - name: stg_players
+    description: unique players_ids and player names
+    columns:
+      - name: plid
+        tests:
+          - unique:
+              config:
+                severity: warn
+          - not_null
+  - name: stg_team_data
+    description: Team lineups and minutes for each fixture
+    tests:
+      - unique:
+          column_name: "(fxid || '-' || plid)"
+  - name: stg_teams
+    description: unique team_ids and team names
+    columns:
+      - name: club
+        tests:
+          - unique
+          - not_null

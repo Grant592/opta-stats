@@ -1,0 +1,27 @@
+version: 2
+
+sources:
+  - name: opta_stats
+    database:  nth-platform-338121
+    description: opta superscout data for a range of matches from 2017-2021
+    schema: opta_stats
+    tables:
+      - name: descriptions
+        description: Mappings from action types to descriptions
+      - name: events_
+        description: Mappings from actions to descriptors
+      - name: fix_data
+        description: Fixture data including teams and scores
+      - name: individual_stats
+        description: All match data without any team data points - strictly individual
+      - name: match_data
+        description: All opta superscout match data
+      - name: players
+        description: unique players_ids and player names
+      - name: team_data
+        description: Team lineups and minutes for each fixture
+      - name: teams
+        description: unique team_ids and team names
+
+
+## SEE HERE https://stackoverflow.com/questions/61159629/dbt-404-not-found-dataset-hello-data-pipelinestaging-benjamin-was-not-found-in
