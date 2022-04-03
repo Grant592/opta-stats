@@ -25,8 +25,8 @@ with kick_totals as (
 player_minutes as (
 
     select
-        team_data.plid as plid,
-        sum(team_data.mins) as mins_played
+        plid,
+        sum(mins) as mins_played
     
     from {{ ref('stg_team_data') }} as team_data
 
