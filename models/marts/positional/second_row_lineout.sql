@@ -11,8 +11,10 @@ with lineout_totals as (
         count(case when lower(action_type) like '%win%' then 1 else null end) as count_won,
         count(case when lower(action_type) like '%steal%' then 1 else null end) as count_steal,
         {% for outcome in outcomes %}
+        {% if outcome %}
             {% set outcome_label = modules.re.sub('[ \-()]', '_', outcome) | lower %}
                 round(count(case when outcome_2 = '{{ outcome }}' then 1 else null end) / count(1) * 100, 1) as {{ outcome_label }}{% if not loop.last %},{% endif %}
+        {% endif %}
         {% endfor %}
 
 

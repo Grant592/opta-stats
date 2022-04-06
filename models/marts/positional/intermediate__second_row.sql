@@ -8,13 +8,13 @@ with lineout_data as (
         descriptions3.qualifier_descriptor as outcome_1,
         descriptions4.qualifier_descriptor as outcome_2
     from {{ ref('stg_match_data') }} as match_data
-    inner join {{ ref('stg_descriptions') }} as descriptions1
+    left join {{ ref('stg_descriptions') }} as descriptions1
     on match_data.actiontype = descriptions1.qualifier
-    inner join {{ ref('stg_descriptions') }} as descriptions2
+    left join {{ ref('stg_descriptions') }} as descriptions2
     on match_data.actionresult = descriptions2.qualifier
-    inner join {{ ref('stg_descriptions') }} as descriptions3
+    left join {{ ref('stg_descriptions') }} as descriptions3
     on match_data.qualifier3 = descriptions3.qualifier
-    inner join {{ ref('stg_descriptions') }} as descriptions4
+    left join {{ ref('stg_descriptions') }} as descriptions4
     on match_data.qualifier4 = descriptions4.qualifier
     where action = 27
 
