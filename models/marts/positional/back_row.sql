@@ -14,6 +14,9 @@ where action = 1
     {% set carry_labels = [] %}
 {% endif %}
 
+
+{{ log(carry_labels, info=True) }}
+
 {% set tackle_labels_query %}
 select distinct action_type
 from {{ ref('intermediate__back_row') }}
@@ -28,6 +31,8 @@ where action = 2
     {% set tackle_labels = [] %}
 {% endif %}
 
+{{ log(tackle_labels, info=True) }}
+
 with carry_totals as (
 
     select 
@@ -36,7 +41,7 @@ with carry_totals as (
         count(case when action = 1 then 1 else null end) as num_carries,
         {% for label in carry_labels %}
             {% set outcome_label = modules.re.sub('[ \-()]', '_', label) | lower %}
-                round(safe_divide(count(case when action_type = '{{ label }}' then 1 else null end), count(1) * 100), 1) as {{ outcome_label }}{% if not loop.last %},{% endif %}
+                round(safe_divide(count(case when action_type = '{{ label }}' then 1 else null end), count(1)) * 100, 1) as {{ outcome_label }}{% if not loop.last %},{% endif %}
         {% endfor %}
 
 
@@ -52,7 +57,7 @@ tackle_totals as (
         count(case when action = 2 then 1 else null end) as num_tackles,
         {% for label in tackle_labels %}
             {% set outcome_label = modules.re.sub('[ \-()]', '_', label) | lower %}
-                round(safe_divide(count(case when action_type = '{{ label }}' then 1 else null end), count(1) * 100), 1) as {{ outcome_label }}{% if not loop.last %},{% endif %}
+                round(safe_divide(count(case when action_type = '{{ label }}' then 1 else null end), count(1)) * 100, 1) as {{ outcome_label }}{% if not loop.last %},{% endif %}
         {% endfor %}
 
 
@@ -66,9 +71,9 @@ jackal_totals as (
     select 
         plid,
         count(case when action_type = 'Jackal' then 1 else null end) as num_jackal_attempts,
-        count(case when action_type = 'Jackal' and action_result = 'Success' then 1 else null end) as succesful_jackal_attempts,
+        count(case when action_type = 'Jackal' and action_result = 'Success' then 1 else null end) as successful_jackal_attempts,
         count(case when action_type = 'Jackal' and action_result = 'Fail' then 1 else null end) as failed_jackal_attempts,
-        safe_divide(count(case when action_type_num = 276 and action_result = 'Success' then 1 else null end),count(case when action_type_num = 276 and action_result = 'Fail' then 1 else null end)) as jackal_success_odds
+        coalesce(round(safe_divide(count(case when action_type_num = 276 and action_result = 'Success' then 1 else null end),count(case when action_type_num = 276 and action_result = 'Fail' then 1 else null end)),2), -1) as jackal_success_odds
 
     from {{ ref('intermediate__back_row') }} back_row
     group by 1
@@ -100,12 +105,28 @@ summary_per_min as (
     select
         players.plforn || ' ' || players.plsurn as player_name,
         player_minutes.mins_played as mins_played,
+
         round(carry_totals.num_carries / player_minutes.mins_played * 80, 2) as carries_per_80,
         round(tackle_totals.num_tackles / player_minutes.mins_played * 80, 2) as tackles_per_80,
         round(jackal_totals.num_jackal_attempts / player_minutes.mins_played * 80, 2) as jackal_attempts_per_80,
-        carry_totals.*,
-        tackle_totals.*,
-        jackal_totals.*
+
+        carry_totals.num_carries as num_carries,
+        {% for label in carry_labels %}
+            {% set outcome_label = modules.re.sub('[ \-()]', '_', label) | lower %}
+            carry_totals.{{ outcome_label }} as {{ outcome_label }},
+        {% endfor %}
+
+        tackle_totals.num_tackles as num_tackles,
+         {% for label in tackle_labels %}
+            {% set outcome_label = modules.re.sub('[ \-()]', '_', label) | lower %}
+            tackle_totals.{{ outcome_label }} as {{ outcome_label }},
+        {% endfor %}
+
+        jackal_totals.num_jackal_attempts as num_jackal_attempts,
+        jackal_totals.successful_jackal_attempts as successful_jackal_attempts,
+        jackal_totals.failed_jackal_attempts as failed_jackal_attempts,
+        jackal_totals.jackal_success_odds as jackal_success_odds
+
 
     from carry_totals
     inner join player_minutes using (plid)
@@ -115,4 +136,4 @@ summary_per_min as (
 
 )
 
-select * from jackal_totals
+select * from summary_per_min
