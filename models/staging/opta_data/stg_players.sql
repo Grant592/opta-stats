@@ -7,6 +7,8 @@ with players as (
     
     from {{ source('opta_stats', 'team_data') }}
 
+    qualify row_number() over(partition by plid) = 1
+
 )
 
 select * from players

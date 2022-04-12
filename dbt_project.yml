@@ -41,3 +41,7 @@ models:
       +matrialized: table
       core:
         +schema: core
+      positional:
+        +schema: positional
+      intermediate:
+        +schema: intermediate
