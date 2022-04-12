@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: opta_stats
-    database:  nth-platform-338121
+    database:   "{{ env_var('DBT_BQ_DATABASE') }}"
     description: opta superscout data for a range of matches from 2017-2021
     schema: opta_stats
     tables:
