@@ -43,3 +43,5 @@ models:
         +schema: core
       positional:
         +schema: positional
+      intermediate:
+        +schema: intermediate

@@ -20,7 +20,7 @@ with box_kicks as (
         match_data.actiontype as action_type,
         descriptions.qualifier_descriptor as action_result,
         case
-          when y_coord <= 15 or y_coord >=55 then true
+          when y_coord_end <= 15 or y_coord_end >=55 then true
           else false end
         as landed_in_fifteens
 
