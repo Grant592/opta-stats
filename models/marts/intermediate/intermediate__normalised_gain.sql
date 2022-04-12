@@ -94,6 +94,13 @@ all_sequences as (
     union all
     select * from tries_not_scored
 
+),
+
+initial_sequence_events as (
+
+    select * from all_sequences
+    qualify row_number() over (partition by fxid, team_id, playnum, setnum, sequence_id order by id) = 1
+    
 )
 
 
@@ -102,13 +109,14 @@ select
     pitch_position,
     try_scored,
     count(*) as total_tries,
-    count(*) / sum(count(*)) over (partition by team_id) as prob
-   
-from all_sequences
+    round(count(*) / sum(count(*)) over (partition by team_id) * 100, 2) as prob_try_scored,
+    round(count(*) / sum(count(*)) over (partition by team_id, try_scored) * 100, 2) as conditional_prob_try_scored
+
+from initial_sequence_events
 
 group by 1,2,3
 
-order by try_scored desc, 5 desc
+order by 1
 
 
 
